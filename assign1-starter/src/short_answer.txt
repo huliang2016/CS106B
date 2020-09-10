@@ -1,0 +1,92 @@
+Before submitting this file, make sure that there are no more TODO
+values left in the file (besides the one in this introduction of course).
+
+Perfect Numbers
+---------------
+Q1: How many numbers does the program search through? How many perfect
+numbers does it find? What are these perfect numbers?
+A1:
+1.1. Same as input search size.
+1.2. 4
+1.3. 6, 28, 496, 8128
+
+Q2: Search Size and Runtime for Exhaustive Algorithm
+A2:
+Search Size: 20000 	Runtime: 1.685
+Search Size: 40000 	Runtime: 6.402
+Search Size: 80000	Runtime: 24.768
+Search Size: 160000	Runtime: 107.84
+Search Size: 320000	Runtime: Large than 5 minutes
+Search Size: 640000	Runtime: Large than 5 minutes
+
+(optional) Plot these values on a graph of runtime vs. Search size and
+see if you can find a trend in the graph.
+
+
+Q3: Does it take the same amount of work to evaluate the isPerfect algorithm
+on the number 10 as it does on the number 1000? Why or why not? Does it 
+take the same amount of work for the findPerfects algorithm to search
+the range of numbers from 1-1000 as it does to search the numbers from 
+1000-2000? Why or why not?
+A3:
+3.1、不一样，找 10 和 1000 的被整除数复杂度不同
+3.2、不一样，算法复杂度是 O(n^2) 的，后者是前者的大概 3 倍
+
+
+Q4: Make a prediction of how long it would take the exhaustive algorithm
+to reach the 5th perfect number.
+A4: 第五个 perfect number 大概为 3300w，是 2w 的 1500 倍，所以时间消耗大概为 1500 ^ 2 * （20000 的时间消耗） = 1053.125h
+
+
+Q5: Introduce a bug into the divisorSum function. Do any of the tests still
+pass even with this broken function? Why or why not?
+A5: 有 test case 依然可以通过，原因：将错就错，误打误撞还对了
+
+
+Q6: Can the test framework detect that the test case is "bogus" in the sense
+that the premise of the test case itself is off-base?
+A6: 不能
+
+
+Q7: Describe your testing strategy to determine that smarterSum was working
+as expected.
+A7: TODO
+
+
+Q8: Search Size and Runtime for Smarter Search
+A8:
+Search Size: 20000 	Runtime: TODO
+Search Size: 40000 	Runtime: TODO
+Search Size: 80000	Runtime: TODO
+Search Size: 160000	Runtime: TODO
+Search Size: 320000	Runtime: TODO
+Search Size: 640000	Runtime: TODO
+
+(optional) Plot these values on a graph of runtime vs. search size and
+see if you can find a trend in the graph.
+
+
+Q9: How long will the optimized code take to reach the fifth perfect number?
+A9: TODO
+
+
+Q10: What test cases did you use to verify that your new function works correctly?
+Please give a brief description of your testing strategy.
+A10: TODO
+
+
+Soundex
+-------
+Q11: What is the Soundex code for "Bowman"? What is the Soundex code for your own surname?
+A11: TODO
+
+
+Q12: Please describe your general decomposition strategy for implementing
+the Soundex code generation algorithm.
+A12: TODO
+
+
+Q13: Think about one or more examples of a class of names that the Soundex system
+might not work well for. Explain what this class of names is and why the system might
+incorrectly group them or mis-categorize one of the names.
+A13: TODO
