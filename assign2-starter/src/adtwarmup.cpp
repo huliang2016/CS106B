@@ -2,6 +2,7 @@
 #include "stack.h"
 #include "queue.h"
 #include "map.h"
+#include "set.h"
 using namespace std;
 
 /* This function correctly reverses the elements of a queue.
@@ -30,6 +31,7 @@ void duplicateNegatives(Queue<int>& q) {
         q.enqueue(cur);
         if (cur < 0) {
             q.enqueue(cur);   // double up on negative numbers
+            i++;
         }
     }
 }
@@ -39,10 +41,14 @@ void duplicateNegatives(Queue<int>& q) {
 // WARNING: the given code is buggy. See exercise writeup for more
 // information on how to test and diagnose.
 void removeMatchPairs(Map<string, string>& map) {
+    Set<string> removeKey;
     for (string key: map) {
         if (map[key] == key) {
-            map.remove(key);
+            removeKey.add(key);
         }
+    }
+    for (string key : removeKey) {
+        map.remove(key);
     }
 }
 

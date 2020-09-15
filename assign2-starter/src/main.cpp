@@ -11,9 +11,9 @@ using namespace std;
 
 int main()
 {
-//    if (runSimpleTests(SELECTED_TESTS)) {
-//        return 0;
-//    }
+    if (runSimpleTests(SELECTED_TESTS)) {
+        return 0;
+    }
 
 //    Grid<bool> maze;
 //    readMazeFile("res/5x7.maze", maze);
