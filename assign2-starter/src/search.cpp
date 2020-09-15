@@ -19,7 +19,15 @@ using namespace std;
  */
 string cleanToken(string token) {
     /* TODO: Fill in the remainder of this function. */
-    return "";
+    string result = "";
+    for (int tokenIdx = 0; tokenIdx < int(token.length()); tokenIdx++) {
+        if ('a' <= token.at(tokenIdx) && token.at(tokenIdx) <= 'z') {
+            result += to_string(token.at(tokenIdx));
+        } else if ('A' <= token.at(tokenIdx) && token.at(tokenIdx) <= 'Z') {
+            result += to_string(char(token.at(tokenIdx) + 32));
+        }
+    }
+    return result;
 }
 
 /* TODO: Replace this comment with a descriptive function
@@ -28,6 +36,35 @@ string cleanToken(string token) {
 Map<string, Set<string>> readDocs(string dbfile) {
     Map<string, Set<string>> docs;
     /* TODO: Fill in the remainder of this function. */
+    ifstream in;
+
+    if (!openFile(in, dbfile))
+        error("Cannot open file named " + dbfile);
+
+    Vector<string> lines;
+    readEntireFile(in, lines);
+
+    if (lines.size() % 2 != 0) {
+        // 奇数行，可以丢掉最后一行
+        lines.removeBack();
+    }
+
+    for (int i = 0; i < lines.size();) {
+        string url = lines[i];
+        string content = lines[i + 1];
+        Vector<string> temp = stringSplit(content, " ", -1);
+        Set<string> contents;
+        for (int tempIdx = 0; tempIdx < temp.size(); tempIdx++) {
+            string tempContent = temp[tempIdx];
+            string tempContentFilter = cleanToken(tempContent);
+            if (tempContentFilter.length() == 0){
+                continue;
+            }
+            contents.add(tempContentFilter);
+        }
+        docs.put(url, contents);
+        i += 2;
+    }
     return docs;
 }
 
@@ -37,6 +74,15 @@ Map<string, Set<string>> readDocs(string dbfile) {
 Map<string, Set<string>> buildIndex(Map<string, Set<string>>& docs) {
     Map<string, Set<string>> index;
     /* TODO: Fill in the remainder of this function. */
+    for (string key : docs.keys()) {
+        for (string temp : docs[key]) {
+            if (index.containsKey(temp)) {
+                index[temp].add(key);
+            } else {
+                index[temp] = Set<string>{key};
+            }
+        }
+    }
     return index;
 }
 
@@ -46,6 +92,38 @@ Map<string, Set<string>> buildIndex(Map<string, Set<string>>& docs) {
 Set<string> findQueryMatches(Map<string, Set<string>>& index, string query) {
     Set<string> result;
     /* TODO: Fill in the remainder of this function. */
+    Stack<Set<string>> stack;
+    for (string temp : stringSplit(query, " ", -1)) {
+        if (temp.size() == 0) {
+            continue;
+        }
+
+        string key = cleanToken(temp);
+        if (stack.size() == 0) {
+            if (index.containsKey(key)) {
+                stack.push(index[key]);
+            }
+            continue;
+        }
+
+        Set<string> last = stack.pop();
+        Set<string> curr;
+        if (index.containsKey(key)) {
+            curr = index[cleanToken(temp)];
+        }
+
+        if (temp.at(0) == '-') {
+            stack.push(last - curr);
+        } else if (temp.at(0) == '+') {
+            stack.push(last * curr);
+        } else {
+            stack.push(last + curr);
+        }
+    }
+
+    while (!stack.isEmpty()) {
+        result += stack.pop();
+    }
     return result;
 }
 
@@ -54,6 +132,24 @@ Set<string> findQueryMatches(Map<string, Set<string>>& index, string query) {
  */
 void searchEngine(string dbfile) {
     /* TODO: Fill in the remainder of this function. */
+    Map<string, Set<string>> docs = readDocs(dbfile);
+    cout << "Stand by while building index..." << endl;
+    Map<string, Set<string>> index = buildIndex(docs);
+    cout << "Indexed " << docs.size() << " pages containing " << index.size() << " unique terms." << endl;
+
+    while (true) {
+        string input = getLine("Enter query sentence (RETURN/ENTER to quit):");
+        if (input.length() == 0) {
+            break;
+        } else {
+            Set<string> result = findQueryMatches(index, input);
+            // Found 2 matching pages
+            // {"http://cs106b.stanford.edu/assignments/assign2/searchengine.html", "http://cs106b.stanford.edu/qt/troubleshooting.html"}
+            cout << "Found " << result.size() << " matching pages" << endl;
+            cout << result.toString() << endl;
+        }
+    }
+    cout << endl << "All done!" << endl;
 }
 
 
@@ -98,10 +194,15 @@ PROVIDED_TEST("buildIndex from tiny.txt, 20 unique tokens overall") {
 PROVIDED_TEST("findQueryMatches from tiny.txt, single word query") {
     Map<string, Set<string>> docs = readDocs("res/tiny.txt");
     Map<string, Set<string>> index = buildIndex(docs);
+    cout << "=========== " + index.toString() << endl;
+
     Set<string> matchesRed = findQueryMatches(index, "red");
+    cout << matchesRed << endl;
     EXPECT_EQUAL(matchesRed.size(), 2);
     EXPECT(matchesRed.contains("www.dr.seuss.net"));
+
     Set<string> matchesHippo = findQueryMatches(index, "hippo");
+    cout << matchesHippo << endl;
     EXPECT(matchesHippo.isEmpty());
 }
 
