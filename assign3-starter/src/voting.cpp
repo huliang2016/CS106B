@@ -67,7 +67,7 @@ Vector<int> computePowerIndexes(Vector<int>& blocks) {
     process(newBlocks, temp, processResult, 0, 0, sumCache);
     cout << "finish travel, processResult size: " << processResult.size() << ", " << pow(2, newBlocks.size());
 
-    Map<int, int> valueCnt;
+    Map<int, double> valueCnt;
     for (Vector<int> block: processResult) {
         int tempSum = sum(block);
         for (int num: block){
@@ -95,7 +95,7 @@ Vector<int> computePowerIndexes(Vector<int>& blocks) {
 
     for (int block: blocks) {
         if (valueCnt.containsKey(block)) {
-            result.add(valueCnt[block] * 100 / blockCnt[block] / voteCnt);
+            result.add(int(valueCnt[block] * 100 / blockCnt[block] / voteCnt));
         } else {
             result.add(0);
         }
