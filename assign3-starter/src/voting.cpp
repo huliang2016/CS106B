@@ -10,22 +10,25 @@
 #include "testing/SimpleTest.h"
 using namespace std;
 
-
-void process(Vector<int>& blocks, Vector<int>& temp, Vector<Vector<int>>& result, int startIdx, int tempSum, int halfSum) {
-    if (tempSum > halfSum) {
+void process(Vector<int>& blocks, Vector<int>& temp, Vector<Vector<int>>& result, int startIdx, int tempSum, Vector<int>& sumCache) {
+    if (tempSum > int(sumCache[blocks.size() - 1] / 2)) {
         // 每个数都不是有效的投票
-        if (tempSum - temp[0] > halfSum) {
+        if (tempSum - temp[0] > int(sumCache[blocks.size() - 1] / 2)) {
             return;
         }
         result.add(temp);
     }
+    // 即使全部加完也不能满足条件了
+    if (0 < startIdx && startIdx < blocks.size() && tempSum + sumCache[blocks.size() - 1] - sumCache[startIdx - 1] <= sumCache[blocks.size() - 1] / 2) {
+        return;
+    }
+
     for (int idx = startIdx; idx < blocks.size(); idx++) {
         temp.push_back(blocks[idx]);
-        process(blocks, temp, result, idx + 1, tempSum + blocks[idx], halfSum);
+        process(blocks, temp, result, idx + 1, tempSum + blocks[idx], sumCache);
         temp.pop_back();
     }
 }
-
 
 int sum(Vector<int> blocks) {
     int result = 0;
@@ -34,7 +37,6 @@ int sum(Vector<int> blocks) {
     }
     return result;
 }
-
 
 /*
  * TODO: Replace this comment with a descriptive function
@@ -45,23 +47,31 @@ Vector<int> computePowerIndexes(Vector<int>& blocks) {
     Vector<Vector<int>> processResult;
     Vector<int> temp;
     // 计算 list 的长度
-    int allSum = sum(blocks), voteCnt = 0;
+    int voteCnt = 0;
+    Vector<int> sumCache;
+    for (int idx=0; idx < blocks.size(); idx++) {
+        if (idx == 0) {
+            sumCache.add(blocks[idx]);
+        } else {
+            sumCache.add(sumCache[idx - 1] + blocks[idx]);
+        }
+    }
 
     // 从大到小排序
     Vector<int> newBlocks(blocks);
     newBlocks.sort();
     newBlocks.reverse();
+    cout << newBlocks << endl;
 
     // 遍历所有可能性
-    cout << newBlocks << endl;
-    process(newBlocks, temp, processResult, 0, 0, allSum / 2);
+    process(newBlocks, temp, processResult, 0, 0, sumCache);
     cout << "finish travel, processResult size: " << processResult.size() << ", " << pow(2, newBlocks.size());
 
     Map<int, int> valueCnt;
     for (Vector<int> block: processResult) {
         int tempSum = sum(block);
         for (int num: block){
-            if (tempSum - num <= allSum / 2) {
+            if (tempSum - num <= sumCache[sumCache.size() - 1] / 2) {
                 if (valueCnt.containsKey(num)) {
                     valueCnt[num] += 1;
                 } else {
@@ -121,8 +131,7 @@ PROVIDED_TEST("Test power index, blocks CA-TX-GA 55-38-16") {
 }
 
 // FIXME(lhu)：速度太慢了，感觉上优化空间只有在 DFS 的时候剪枝
-//             目前想到了两种，一种是代码里写到了的
-//             还有一种是当 起点之后的和小于全部和的一半时，可以全部剪掉，但是这个加上之后在下面时间测试中，反而更长了，比较奇怪吧。。。
+//             目前想到了两种，都在代码里写了注释
 PROVIDED_TEST("Test power index, blocks EU post-Nice") {
     /* This is a stress test, which tests the efficiency of your
      * recursive process. Your solution will need to avoid any expensive
@@ -140,9 +149,9 @@ PROVIDED_TEST("Test power index, blocks EU post-Nice") {
 }
 
 PROVIDED_TEST("Time power index operation") {
-    Vector<int> blocks;
-    for (int i = 0; i < 22; i++) {
-        blocks.add(randomInteger(1, 10));
-    }
+    Vector<int> blocks({10, 10, 10, 10, 9, 9, 8, 8, 8, 7, 7, 7, 7, 7, 5, 5, 5, 4, 3, 3, 1, 1});
+//    for (int i = 0; i < 22; i++) {
+//        blocks.add(randomInteger(1, 10));
+//    }
     TIME_OPERATION(blocks.size(), computePowerIndexes(blocks));
 }
